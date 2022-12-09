@@ -613,15 +613,15 @@ def run_test_cases(n_samples, fname="Datatables", per_dim=True, rep=1500):
 
 
 if __name__ == "__main__":
-    idx_nr = int(sys.argv[1])
+    #idx_nr = int(sys.argv[1])
     #     rep = int(sys.argv[2])
 
     # idx_nr decides which experiment is run (division on nodes)
     fname = "/var/scratch/dlvermet/SB"
     #     fname = "Datatables"
-    run_per = idx_nr < 4
-    s = [30, 50, 100, 600][idx_nr % 4]
-    #     for s in [30, 50, 100, 600]:
-    run_test_cases(s, fname, run_per)
+    #run_per = idx_nr < 4
+    #s = [30, 50, 100, 600]
+    for s in [30, 50, 100, 600]:
+        run_test_cases(s, fname, True)
 #     run_test_cases(100)
 #     alpha = [0.05, 0.01, ]

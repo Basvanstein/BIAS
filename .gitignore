@@ -4,3 +4,4 @@ env
 BIAS/models/RF
 *.pkl
 __pycache__
+misclasifications

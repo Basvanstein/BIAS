@@ -59,7 +59,7 @@ class biasmodel(MLPClassifier):
 #settings for this experiment
 rep = 20000
 
-for n_samples in [30]:#,50,100,600
+for n_samples in [600]:#,50,100,600
     #load data
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
@@ -113,7 +113,7 @@ for n_samples in [30]:#,50,100,600
     from sklearn.metrics import f1_score
 
     model = tf.keras.models.load_model(f"BIAS/models/opt_cnn_model-{n_samples}.h5")
-    model.save(f"BIAS/models/opt_cnn_model-{n_samples}.tf")
+    #model.save(f"BIAS/models/opt_cnn_model-{n_samples}.tf")
     #model.summary()
     print(
         "Accuracy: {accuracy}".format(
@@ -132,7 +132,7 @@ for n_samples in [30]:#,50,100,600
     test_y = np.argmax(y_test, axis=1)
     test_real_y = np.argmax(y_test_real, axis=1)
     fig, ax = plt.subplots(figsize=(14, 14))
-    np.save("targetnames.npy", targetnames)
+    #np.save("targetnames.npy", targetnames)
     plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
     plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion.png")
 
@@ -154,10 +154,11 @@ for n_samples in [30]:#,50,100,600
     #compare with classifical method
     #do 30 independent runs (5 dimensions)
     
+    if False:
 
-    model2 = biasmodel(model, targetnames)
-    test_y = np.argmax(y_test, axis=1)
-    #print(f1_score(np.argmax(y_test, axis=1), np.argmax(model2.predict(X_test), axis=1), average='macro')
-    fig, ax = plt.subplots(figsize=(14, 14))
-    plot_confusion_matrix(model2, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
-    plt.savefig(f"experiments/models/bias_model-{n_samples}-confusion.png")
+        model2 = biasmodel(model, targetnames)
+        test_y = np.argmax(y_test, axis=1)
+        #print(f1_score(np.argmax(y_test, axis=1), np.argmax(model2.predict(X_test), axis=1), average='macro')
+        fig, ax = plt.subplots(figsize=(14, 14))
+        plot_confusion_matrix(model2, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
+        plt.savefig(f"experiments/models/bias_model-{n_samples}-confusion.png")
