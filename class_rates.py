@@ -66,61 +66,61 @@ class deepbiasmodel(MLPClassifier):
 #settings for this experiment
 rep = 100
 if __name__=='__main__':
-    dim = int(sys.argv[1])
-    n_samples = int(sys.argv[2])
-    #for dim in [10,20,30,40]:
-    #    for n_samples in [30,50,100,600]:#,
-    #load data
-    scenes = get_scens_per_dim()
-    per_label = {"unif":0, "bias":0}
-    X = []
-    y = []
-    realY = []
-    for scene in scenes:
-        label = scene[0]
-        realLabel = f"{label} " + json.dumps(scene[1])
-        kwargs = scene[1]
-        if (label == "unif"):
-            rep1 = 189 * rep
-        else:
-            rep1 = rep
-        for r in range(rep1):
-            data_arr = get_simulated_data(label, dim, n_samples, kwargs=kwargs)
-            data = []
-            for r in range(dim):
-                data.append(np.sort(data_arr[:,r]))
-            X.append(np.array(data).T)
-        if (label != "unif"):
-            label = "bias"
-        per_label[label] += rep1
-        y.extend([label]*rep1)
-    print(per_label)
-    X = np.array(X)
-    int_y, targetnames= pd.factorize(y)
-    model1 = deepbiasmodel(MLPClassifier(), targetnames)
-    pred1 = model1.predict(X)
-    print(f"CLassification report for deep model dim {dim}, samples {n_samples}")
-    report = classification_report(int_y, pred1, target_names=targetnames)
-    with open(f'report_deep_{n_samples}-{dim}.txt', 'w') as f:
-        f.write(report)
-    print(report)
-    fig, ax = plt.subplots(figsize=(14, 14))
-    cm = confusion_matrix(int_y, pred1)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
-    disp.plot(ax=ax) 
-    plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion_binary.png")
+    #dim = int(sys.argv[1])
+    n_samples = int(sys.argv[1])
+    for dim in [10,20,30,40]:
+        #    for n_samples in [30,50,100,600]:#,
+        #load data
+        scenes = get_scens_per_dim()
+        per_label = {"unif":0, "bias":0}
+        X = []
+        y = []
+        realY = []
+        for scene in scenes:
+            label = scene[0]
+            realLabel = f"{label} " + json.dumps(scene[1])
+            kwargs = scene[1]
+            if (label == "unif"):
+                rep1 = 189 * rep
+            else:
+                rep1 = rep
+            for r in range(rep1):
+                data_arr = get_simulated_data(label, dim, n_samples, kwargs=kwargs)
+                data = []
+                for r in range(dim):
+                    data.append(np.sort(data_arr[:,r]))
+                X.append(np.array(data).T)
+            if (label != "unif"):
+                label = "bias"
+            per_label[label] += rep1
+            y.extend([label]*rep1)
+        print(per_label)
+        X = np.array(X)
+        int_y, targetnames= pd.factorize(y)
+        model1 = deepbiasmodel(MLPClassifier(), targetnames)
+        pred1 = model1.predict(X)
+        print(f"CLassification report for deep model dim {dim}, samples {n_samples}")
+        report = classification_report(int_y, pred1, target_names=targetnames)
+        with open(f'report_deep_{n_samples}-{dim}.txt', 'w') as f:
+            f.write(report)
+        print(report)
+        fig, ax = plt.subplots(figsize=(14, 14))
+        cm = confusion_matrix(int_y, pred1)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
+        disp.plot(ax=ax) 
+        plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion_binary.png")
 
-    
-    model2 = biasmodel(MLPClassifier(), targetnames)
-    pred2 = model2.predict(X)
-    print(f"CLassification report for stat model dim {dim}, samples {n_samples}")
-    report = classification_report(int_y, pred2, target_names=targetnames)
-    with open(f'report_bias_{n_samples}-{dim}.txt', 'w') as f:
-        f.write(report)
-    print(report)
-    fig, ax = plt.subplots(figsize=(14, 14))
-    cm = confusion_matrix(int_y, pred2)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
-    disp.plot(ax=ax)  
-    plt.savefig(f"experiments/models/opt_bias_model-{n_samples}-confusion_binary.png")
-    
+        
+        model2 = biasmodel(MLPClassifier(), targetnames)
+        pred2 = model2.predict(X)
+        print(f"CLassification report for stat model dim {dim}, samples {n_samples}")
+        report = classification_report(int_y, pred2, target_names=targetnames)
+        with open(f'report_bias_{n_samples}-{dim}.txt', 'w') as f:
+            f.write(report)
+        print(report)
+        fig, ax = plt.subplots(figsize=(14, 14))
+        cm = confusion_matrix(int_y, pred2)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
+        disp.plot(ax=ax)  
+        plt.savefig(f"experiments/models/opt_bias_model-{n_samples}-confusion_binary.png")
+        
