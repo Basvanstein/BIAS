@@ -433,8 +433,8 @@ class BIAS:
         """
         # load model
         n_samples = data.shape[0]
-        if not n_samples in [30, 50, 100]:
-            raise ValueError("Sample size is not supported")
+        if not n_samples in [30, 50, 100, 600]:
+            raise ValueError("Sample size is not supported", n_samples)
         if self.deepmodel == None:
             dirname = os.path.dirname(__file__)
             # download RF models if needed from
@@ -452,8 +452,8 @@ class BIAS:
             # perform per dimension test
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
-            preds.append(self.deepmodel.predict(x))
-        pred_mean = np.mean(preds, axis=1)
+            preds.append(self.deepmodel.predict(x, verbose=0))
+        pred_mean = np.mean(preds, axis=0)
         y = np.argmax(pred_mean, axis=1)
         if include_proba:
             return self.targetnames[y], preds
