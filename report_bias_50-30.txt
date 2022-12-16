@@ -1,0 +1,8 @@
+              precision    recall  f1-score   support
+
+        unif       0.75      1.00      0.86      1890
+        bias       1.00      0.67      0.80      1890
+
+    accuracy                           0.84      3780
+   macro avg       0.88      0.84      0.83      3780
+weighted avg       0.88      0.84      0.83      3780

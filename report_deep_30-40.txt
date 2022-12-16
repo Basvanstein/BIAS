@@ -1,6 +1,6 @@
               precision    recall  f1-score   support
 
-        unif       0.70      1.00      0.83      1890
+        unif       0.70      1.00      0.82      1890
         bias       1.00      0.58      0.73      1890
 
     accuracy                           0.79      3780
