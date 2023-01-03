@@ -169,9 +169,7 @@ class BIAS:
         dt_rejections = pd.DataFrame()
         dt_p_vals_temp = pd.DataFrame()
         for colname in self.p_value_columns:
-            dt_rejections[colname] = multipletests(
-                dt[colname], alpha=alpha, method=correction_method
-            )[0]
+            dt_p_vals_temp[colname] = dt[colname]
 
         for k, v in reference_vals.items():
             if "kurt" in k:
@@ -179,41 +177,29 @@ class BIAS:
                     percentileofscore(score=x, a=v, kind="mean") / 100 for x in dt[k]
                 ]
                 temp = [min(x, 1 - x) for x in temp]  # two-sided comparison
-                dt_rejections[k] = multipletests(
-                    temp, alpha=alpha / 2, method=correction_method
-                )[0]
             elif k in ["min", "wasserstein", "mdd_max", "mdd_min"]:
                 temp = [
                     1 - percentileofscore(score=x, a=v, kind="mean") / 100
                     for x in dt[k]
                 ]
-                dt_rejections[k] = multipletests(
-                    temp, alpha=alpha, method=correction_method
-                )[0]
             else:
                 temp = [
                     percentileofscore(score=x, a=v, kind="mean") / 100 for x in dt[k]
                 ]
-                dt_rejections[k] = multipletests(
-                    temp, alpha=alpha, method=correction_method
-                )[0]
+            dt_p_vals_temp[k] = temp
         for k, v in ref_vals_new.items():
             if test_types_new[k] == 4:
                 temp = [
                     percentileofscore(score=x, a=v, kind="mean") / 100 for x in dt[k]
                 ]
-                dt_rejections[k] = multipletests(
-                    temp, alpha=alpha, method=correction_method
-                )[0]
             else:
                 temp = [
                     1 - percentileofscore(score=x, a=v, kind="mean") / 100
                     for x in dt[k]
                 ]
-                dt_rejections[k] = multipletests(
-                    temp, alpha=alpha, method=correction_method
-                )[0]
-        return dt_rejections
+            dt_p_vals_temp[k] = temp
+        res = multipletests(np.array(dt_p_vals_temp).flatten(), alpha=alpha, method=correction_method)[0].reshape(dt_p_vals_temp.shape)
+        return pd.DataFrame(res, columns= dt_p_vals_temp.columns)
 
     def _get_test_names_dict(self):
         """Helper function to ensure consistent naming for the used statistical tests
@@ -318,11 +304,13 @@ class BIAS:
         Returns:
             dict: Dict with the predicted Class and the Class_Probabilities
         """
-        mean_rej = np.mean(np.array(dt_rej), axis=0) >= 0.1
+        mean_rej = np.mean(np.array(dt_rej), axis=0) > 0
         if np.sum(mean_rej) == 0:
             if print_type:
                 print("No clear evidence of bias detected")
             return "none"
+        else:
+            return "Center" #who cares, just bias
         dirname = os.path.dirname(__file__)
 
         # download RF models if needed from
@@ -445,8 +433,8 @@ class BIAS:
                 f"{dirname}/models/targetnames.npy", allow_pickle=True
             )
             # loading explainable background samples and loading the explainer
-            self.xai_background = getXAIBackground(data.shape[0])
-            self.explainer = shap.DeepExplainer(self.deepmodel, self.xai_background)
+            #self.xai_background = getXAIBackground(data.shape[0])
+            #self.explainer = shap.DeepExplainer(self.deepmodel, self.xai_background)
         preds = []
         for d in range(data.shape[1]):
             # perform per dimension test

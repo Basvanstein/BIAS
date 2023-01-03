@@ -12,11 +12,28 @@ from sklearn.metrics import (
     pairwise_distances_argmin_min,
 )
 
-# importr('data.table')
-# importr('goftest')
-# ddst = importr('ddst')
-# pwr = importr('PoweR')
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
 
+importr('data.table')
+importr('goftest')
+ddst = importr('ddst')
+pwr = importr('PoweR')
+
+robjects.r('''
+R_test_ad <- function(x, max_=1) {
+    return(ad.test(x, "punif", max=max_, min=0)[[2]])
+}
+R_test_norm <- function(x, test='Shapiro') {
+    qnorm_temp <- qnorm(x)
+    qnorm_temp[is.infinite(qnorm_temp)] <- 4*sign(qnorm_temp[is.infinite(qnorm_temp)])
+    if (test == 'Shapiro') {
+        return(shapiro.test(qnorm_temp)[[2]])
+    } else {
+        return(AutoSEARCH::jb.test(qnorm_temp)$p.value)
+    }
+}
+''')
 
 def get_mi(X, type_="med"):
     mutuals = []
