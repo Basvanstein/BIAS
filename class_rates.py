@@ -64,11 +64,11 @@ class deepbiasmodel(MLPClassifier):
         return np.array(y)
 
 #settings for this experiment
-rep = 100
+rep = 10
 if __name__=='__main__':
     #dim = int(sys.argv[1])
-    n_samples = int(sys.argv[1])
-    for dim in [10,20,30,40]:
+    dim = 1
+    for n_samples in [30,50,100,600]:
         #    for n_samples in [30,50,100,600]:#,
         #load data
         scenes = get_scens_per_dim()
@@ -104,12 +104,11 @@ if __name__=='__main__':
         with open(f'report_deep_{n_samples}-{dim}.txt', 'w') as f:
             f.write(report)
         print(report)
-        fig, ax = plt.subplots(figsize=(14, 14))
+        fig, ax = plt.subplots(figsize=(6, 6))
         cm = confusion_matrix(int_y, pred1)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
         disp.plot(ax=ax) 
-        plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion_binary.png")
-
+        plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-{dim}-confusion_binary.png")
         
         model2 = biasmodel(MLPClassifier(), targetnames)
         pred2 = model2.predict(X)
@@ -118,9 +117,9 @@ if __name__=='__main__':
         with open(f'report_bias_{n_samples}-{dim}.txt', 'w') as f:
             f.write(report)
         print(report)
-        fig, ax = plt.subplots(figsize=(14, 14))
+        fig, ax = plt.subplots(figsize=(6, 6))
         cm = confusion_matrix(int_y, pred2)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
         disp.plot(ax=ax)  
-        plt.savefig(f"experiments/models/opt_bias_model-{n_samples}-confusion_binary.png")
+        plt.savefig(f"experiments/models/opt_bias_model-{n_samples}-{dim}-confusion_binary.png")
         
