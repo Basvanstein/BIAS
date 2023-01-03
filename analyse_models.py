@@ -59,7 +59,7 @@ class biasmodel(MLPClassifier):
 #settings for this experiment
 rep = 20000
 
-for n_samples in [600]:#,50,100,600
+for n_samples in [30,50,100,600]:#,50,100,600
     #load data
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
@@ -115,6 +115,7 @@ for n_samples in [600]:#,50,100,600
     model = tf.keras.models.load_model(f"BIAS/models/opt_cnn_model-{n_samples}.h5")
     #model.save(f"BIAS/models/opt_cnn_model-{n_samples}.tf")
     #model.summary()
+    """
     print(
         "Accuracy: {accuracy}".format(
             accuracy = model.evaluate(x=X_test, y=y_test)
@@ -124,37 +125,39 @@ for n_samples in [600]:#,50,100,600
         )
     )
     tf.keras.utils.plot_model(model, to_file=f"experiments/models/opt_cnn_model-{n_samples}.png")
-
+    """
     model1 = newmodel(model)
     hat_y_real = model.predict(X_test)
     hat_y = np.argmax(hat_y_real, axis=1)
 
     test_y = np.argmax(y_test, axis=1)
     test_real_y = np.argmax(y_test_real, axis=1)
-    fig, ax = plt.subplots(figsize=(14, 14))
+    fig, ax = plt.subplots(figsize=(6, 6))
     #np.save("targetnames.npy", targetnames)
-    plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
+    plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 45, display_labels = targetnames, ax=ax) 
+    plt.tight_layout()
     plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion.png")
 
-    #analyse misclassifications
-    misclassifications_per_scenario = {}
-    for i in range(len(hat_y)):
-        if hat_y[i] != test_y[i]:
-            if (targetnames_real[test_real_y[i]] not in misclassifications_per_scenario.keys()):
-                misclassifications_per_scenario[targetnames_real[test_real_y[i]]] = 1
-            misclassifications_per_scenario[targetnames_real[test_real_y[i]]] += 1
-    #print(misclassifications_per_scenario)
-    # Serializing json
-    json_object = json.dumps(misclassifications_per_scenario, indent=4)
-    
-    # Writing to sample.json
-    with open(f"experiments/misclassifications_per_scenario_{n_samples}.json", "w") as outfile:
-        outfile.write(json_object)
-
-    #compare with classifical method
-    #do 30 independent runs (5 dimensions)
-    
     if False:
+        #analyse misclassifications
+        misclassifications_per_scenario = {}
+        for i in range(len(hat_y)):
+            if hat_y[i] != test_y[i]:
+                if (targetnames_real[test_real_y[i]] not in misclassifications_per_scenario.keys()):
+                    misclassifications_per_scenario[targetnames_real[test_real_y[i]]] = 1
+                misclassifications_per_scenario[targetnames_real[test_real_y[i]]] += 1
+        #print(misclassifications_per_scenario)
+        # Serializing json
+        json_object = json.dumps(misclassifications_per_scenario, indent=4)
+        
+        # Writing to sample.json
+        with open(f"experiments/misclassifications_per_scenario_{n_samples}.json", "w") as outfile:
+            outfile.write(json_object)
+
+        #compare with classifical method
+        #do 30 independent runs (5 dimensions)
+    
+    
 
         model2 = biasmodel(model, targetnames)
         test_y = np.argmax(y_test, axis=1)
