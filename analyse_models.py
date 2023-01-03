@@ -56,8 +56,45 @@ class biasmodel(MLPClassifier):
             
         return np.array(y)
 
+def plot_explanation(x, preds, pred_labels, shap_vals_pred, shap_vals_true, prediction, label, filename):
+    plt.ioff()
+    cmap = sbs.color_palette('coolwarm', as_cmap=True)
+    norm = plt.Normalize(vmin=-1*np.max(np.abs(shap_vals_pred)), vmax=np.max(np.abs(shap_vals_pred)))  # 0 and 1 are the defaults, but you can adapt these to fit other uses
+    df = pd.DataFrame({"x": x.flatten(), "shap": shap_vals_pred.flatten()})
+    palette = {h: cmap(norm(h)) for h in df['shap']}
+
+    #fig, axs = plt.subplots(2, figsize=(8,2))
+    fig = plt.figure(figsize=(8,4))
+    gs = GridSpec(2, 3, figure=fig)
+    ax1 = fig.add_subplot(gs[:, 0]) #prediction labels
+    ax1.bar(pred_labels, preds)
+    plt.xticks(rotation=30, ha='right')
+    ax1.set_title("Prediction probabilities")
+    ax1.set_ylim([0,1])
+
+    ax2 = fig.add_subplot(gs[0, 1:])
+    ax2.set_title(f"Predicted: {prediction}")
+    sbs.swarmplot(data=df, x="x", hue="shap", palette=palette, ax=ax2, size=3, legend=False)
+    ax2.set_xlabel("")
+    ax2.set_xlim([0,1])
+
+    cmap = sbs.color_palette('coolwarm', as_cmap=True)
+    norm = plt.Normalize(vmin=-1*np.max(np.abs(shap_vals_true)), vmax=np.max(np.abs(shap_vals_true)))  # 0 and 1 are the defaults, but you can adapt these to fit other uses
+    df = pd.DataFrame({"x": x.flatten(), "shap": shap_vals_true.flatten()})
+    palette = {h: cmap(norm(h)) for h in df['shap']}
+    ax3 = fig.add_subplot(gs[1, 1:])
+    sbs.swarmplot(data=df, x="x", hue="shap", palette=palette, ax=ax3, size=3, legend=False)
+    ax3.set_title(f"Label: {label}")
+    ax3.set_xlabel("")
+    ax3.set_xlim([0,1])
+    
+    #sbs.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
 #settings for this experiment
-rep = 20000
+rep = 1000
 
 for n_samples in [30,50,100,600]:#,50,100,600
     #load data
@@ -132,6 +169,7 @@ for n_samples in [30,50,100,600]:#,50,100,600
 
     test_y = np.argmax(y_test, axis=1)
     test_real_y = np.argmax(y_test_real, axis=1)
+
     fig, ax = plt.subplots(figsize=(6, 6))
     #np.save("targetnames.npy", targetnames)
     plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 45, display_labels = targetnames, ax=ax) 
@@ -154,10 +192,35 @@ for n_samples in [30,50,100,600]:#,50,100,600
         with open(f"experiments/misclassifications_per_scenario_{n_samples}.json", "w") as outfile:
             outfile.write(json_object)
 
-        #compare with classifical method
-        #do 30 independent runs (5 dimensions)
-    
-    
+
+    #compare with classifical method
+    #do 30 independent runs (5 dimensions)
+
+    #show misclassications
+    import seaborn as sbs
+    import shap
+    # select backgroud for shap
+    background = X_train[np.random.choice(X_train.shape[0], 100, replace=False)]
+    # DeepExplainer to explain predictions of the model
+    explainer = shap.DeepExplainer(model, background)
+
+    #plot shap explanations
+    from matplotlib.gridspec import GridSpec
+
+
+    test_y = np.argmax(y_test, axis=1)
+    for i in range(len(hat_y)):
+        print(i)
+        if hat_y[i] != test_y[i]:
+            shap_val = explainer.shap_values(X_test[i:i+1])
+            plot_explanation(X_test[i], 
+                hat_y_real[i], 
+                targetnames,
+                shap_val[hat_y[i]][0], 
+                shap_val[test_y[i]][0], 
+                targetnames[hat_y[i]], 
+                targetnames[test_y[i]], 
+                f"experiments/misclassifications/{n_samples}prediction{i}.png")    
 
         model2 = biasmodel(model, targetnames)
         test_y = np.argmax(y_test, axis=1)

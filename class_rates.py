@@ -67,8 +67,8 @@ class deepbiasmodel(MLPClassifier):
 rep = 10
 if __name__=='__main__':
     #dim = int(sys.argv[1])
-    dim = 1
-    for n_samples in [30,50,100,600]:
+    n_samples = int(sys.argv[1])
+    for dim in [1,10,20,30,40]:
         #    for n_samples in [30,50,100,600]:#,
         #load data
         scenes = get_scens_per_dim()
@@ -97,19 +97,19 @@ if __name__=='__main__':
         print(per_label)
         X = np.array(X)
         int_y, targetnames= pd.factorize(y)
-        model1 = deepbiasmodel(MLPClassifier(), targetnames)
-        pred1 = model1.predict(X)
-        print(f"CLassification report for deep model dim {dim}, samples {n_samples}")
-        report = classification_report(int_y, pred1, target_names=targetnames)
-        with open(f'report_deep_{n_samples}-{dim}.txt', 'w') as f:
-            f.write(report)
-        print(report)
-        fig, ax = plt.subplots(figsize=(6, 6))
-        cm = confusion_matrix(int_y, pred1)
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
-        disp.plot(ax=ax) 
-        plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-{dim}-confusion_binary.png")
-        
+        if False:
+            model1 = deepbiasmodel(MLPClassifier(), targetnames)
+            pred1 = model1.predict(X)
+            print(f"CLassification report for deep model dim {dim}, samples {n_samples}")
+            report = classification_report(int_y, pred1, target_names=targetnames)
+            with open(f'report_deep_{n_samples}-{dim}.txt', 'w') as f:
+                f.write(report)
+            print(report)
+            fig, ax = plt.subplots(figsize=(14, 14))
+            cm = confusion_matrix(int_y, pred1)
+            disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
+            disp.plot(ax=ax) 
+            plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-{dim}-confusion_binary.png")        
         model2 = biasmodel(MLPClassifier(), targetnames)
         pred2 = model2.predict(X)
         print(f"CLassification report for stat model dim {dim}, samples {n_samples}")
@@ -120,6 +120,6 @@ if __name__=='__main__':
         fig, ax = plt.subplots(figsize=(6, 6))
         cm = confusion_matrix(int_y, pred2)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=targetnames)
-        disp.plot(ax=ax)  
+        disp.plot(ax=ax)
         plt.savefig(f"experiments/models/opt_bias_model-{n_samples}-{dim}-confusion_binary.png")
-        
+
