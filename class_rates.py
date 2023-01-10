@@ -65,11 +65,11 @@ class deepbiasmodel(MLPClassifier):
 
 #settings for this experiment
 rep = 10
-if __name__=='__main__':
-    #dim = int(sys.argv[1])
-    n_samples = int(sys.argv[1])
-    for dim in [1,10,20,30,40]:
-        #    for n_samples in [30,50,100,600]:#,
+#if __name__=='__main__':
+#dim = int(sys.argv[1])
+#n_samples = int(sys.argv[1])
+for dim in [1,10,20,30]:
+    for n_samples in [30,50,100,600]:#,
         #load data
         scenes = get_scens_per_dim()
         per_label = {"unif":0, "bias":0}
@@ -97,7 +97,7 @@ if __name__=='__main__':
         print(per_label)
         X = np.array(X)
         int_y, targetnames= pd.factorize(y)
-        if False:
+        if True:
             model1 = deepbiasmodel(MLPClassifier(), targetnames)
             pred1 = model1.predict(X)
             print(f"CLassification report for deep model dim {dim}, samples {n_samples}")
