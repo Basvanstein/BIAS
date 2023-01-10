@@ -198,7 +198,7 @@ class BIAS:
                     for x in dt[k]
                 ]
             dt_p_vals_temp[k] = temp
-        res = multipletests(np.array(dt_p_vals_temp).flatten(), alpha=alpha, method=correction_method)[0].reshape(dt_p_vals_temp.shape)
+        res = np.array([multipletests(x, alpha=alpha, method=correction_method)[0] for x in np.array(dt_p_vals_temp)]).reshape(dt_p_vals_temp.shape)
         return pd.DataFrame(res, columns= dt_p_vals_temp.columns)
 
     def _get_test_names_dict(self):
@@ -304,7 +304,7 @@ class BIAS:
         Returns:
             dict: Dict with the predicted Class and the Class_Probabilities
         """
-        mean_rej = np.mean(np.array(dt_rej), axis=0) > 0
+        mean_rej = np.mean(np.array(dt_rej), axis=0) > 0.1
         if np.sum(mean_rej) == 0:
             if print_type:
                 print("No clear evidence of bias detected")
@@ -441,11 +441,17 @@ class BIAS:
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
             preds.append(self.deepmodel.predict(x, verbose=0))
-        pred_mean = np.mean(preds, axis=0)
-        y = np.argmax(pred_mean, axis=1)
+        decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
+
+        if np.mean(decisions) <= 0.1:
+            y = 'unif'
+        else:
+            pred_mean = np.mean(preds[1:], axis=0)
+            y = self.targetnames[np.argmax(pred_mean.flatten()[1:])+1]
+
         if include_proba:
-            return self.targetnames[y], preds
-        return self.targetnames[y]
+            return y, preds
+        return y
 
     def predict(
         self,
