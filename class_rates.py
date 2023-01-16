@@ -54,7 +54,7 @@ class deepbiasmodel(MLPClassifier):
     def predict(self, X):
         y = []
         for x in tqdm(X):
-            pred = self.test.predict_deep(x, include_proba=False)[0]
+            pred, proba = self.test.predict_deep(x, include_proba=True)
             if (pred == "unif"):
                 class_pred = 0
             else:
