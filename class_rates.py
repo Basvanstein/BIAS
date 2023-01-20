@@ -68,8 +68,8 @@ rep = 10
 #if __name__=='__main__':
 #dim = int(sys.argv[1])
 #n_samples = int(sys.argv[1])
-for dim in [1,10,20,30]:
-    for n_samples in [30,50,100,600]:#,
+for dim in [30]:
+    for n_samples in [600]:#,
         #load data
         scenes = get_scens_per_dim()
         per_label = {"unif":0, "bias":0}
