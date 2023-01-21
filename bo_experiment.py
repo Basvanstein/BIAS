@@ -5,12 +5,12 @@ from BIAS import BIAS, f0
 from tqdm import tqdm
 from bayes_opt.bayes_optim import BO, RealSpace, AnnealingBO
 from bayes_opt.bayes_optim.extension import PCABO
-from bayes_opt.bayes_optim.surrogate import GaussianProcess, RandomForest
+from bayes_opt.bayes_optim.surrogate import GaussianProcess, RandomForest, s0
 
-np.random.seed(42)
+
 
 dim = 30
-num_samples = 10
+num_samples = 600
 space = RealSpace([0, 1]) * dim  # create the search space
 thetaL = 1e-10 * (1 - 0) * np.ones(dim)
 thetaU = 10 * (1 - 0) * np.ones(dim)
@@ -20,48 +20,48 @@ thetaU = 10 * (1 - 0) * np.ones(dim)
 
 
 for bo_choice in ["BO"]: #, "AnnealingBO", "PCABO"
-    for model_choice in ["GP", "RF"]:
+    for model_choice in ["s0", "GP", "RF"]:
         for aq_choice in ["MGFI", "UCB", "EI", "PI", "EpsilonPI"]:
-            samples = []
-            print(f"Evaluating {bo_choice} with {model_choice} and {aq_choice}")
-            for i in tqdm(np.arange(num_samples)):
-                if model_choice == "GP":
-                    model = GaussianProcess(                # create the GPR model
-                        thetaL=thetaL, thetaU=thetaU
-                    )
-                else:
-                    model = RandomForest()
+            for opt_choice in ["MIES",  "BFGS", "OnePlusOne_Cholesky_CMA"]:                
+                samples = []
+                print(f"Evaluating {bo_choice} with {model_choice} and {aq_choice} and {opt_choice}")
+                for i in tqdm(np.arange(num_samples)):
+                    np.random.seed(i)
+                    doe_size = 100
+                    if model_choice == "GP":
+                        model = GaussianProcess(                # create the GPR model
+                            thetaL=thetaL, thetaU=thetaU
+                        )
+                    elif model_choice == "RF":
+                        model = RandomForest()
+                    else:
+                        model = s0()
+                        doe_size = 1
 
-                if bo_choice == "BO":
-                    opt = BO(
-                        search_space=space,
-                        obj_fun=f0,
-                        model=model,
-                        DoE_size=100,                         # number of initial sample points
-                        max_FEs=1,                         # maximal function evaluation
-                        verbose=False,
-                        acquisition_fun=aq_choice
-                    )
-                elif bo_choice == "AnnealingBO":
-                    opt = AnnealingBO(
-                        search_space=space,
-                        obj_fun=f0,
-                        model=model,
-                        DoE_size=100,                         # number of initial sample points
-                        max_FEs=1,                         # maximal function evaluation
-                        verbose=False
-                    )
-                elif bo_choice == "PCABO":
-                    opt = PCABO(
-                        search_space=space,
-                        obj_fun=f0,
-                        model=model,
-                        DoE_size=100,                         # number of initial sample points
-                        max_FEs=1,                         # maximal function evaluation
-                        verbose=False
-                    )
-                xopt, fopt, stop_dict = opt.run()
-                samples.append(xopt)
+                    if bo_choice == "BO":
+                        opt = BO(
+                            search_space=space,
+                            obj_fun=f0,
+                            model=model,
+                            DoE_size=doe_size,                         # number of initial sample points
+                            max_FEs=doe_size+1,                         # maximal function evaluation
+                            verbose=False,
+                            acquisition_fun=aq_choice,
+                            acquisition_optimization={"optimizer": opt_choice}
+                        )
+                    elif bo_choice == "PCABO":
+                        opt = PCABO(
+                            search_space=space,
+                            obj_fun=f0,
+                            model=model,
+                            DoE_size=doe_size,                         # number of initial sample points
+                            max_FEs=doe_size+1,                         # maximal function evaluation
+                            verbose=False,
+                            acquisition_fun=aq_choice,
+                            acquisition_optimization={"optimizer": opt_choice}
+                        )
+                    xopt, fopt, stop_dict = opt.run()
+                    samples.append(xopt)
 
-            samples = np.array(samples)
-            np.save(f"bo/exp_{bo_choice}-{model_choice}-{aq_choice}.npy", samples)
+                samples = np.array(samples)
+                np.save(f"bo/exp_{bo_choice}-{model_choice}-{aq_choice}-{opt_choice}.npy", samples)
