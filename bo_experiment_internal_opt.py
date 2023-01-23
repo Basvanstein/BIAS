@@ -24,6 +24,8 @@ for opt_choice in [OnePlusOne_Cholesky_CMA, MIES, OnePlusOne_CMA]:
             opt = opt_choice(
                 search_space=RealSpace([-5, 5]) * 30,
                 obj_func=f0,
+                ftarget=1e-8,
+                max_eval= 1000,
                 verbose=False,
             )
         else:
