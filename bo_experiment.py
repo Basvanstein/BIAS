@@ -19,24 +19,26 @@ thetaU = 10 * (1 - 0) * np.ones(dim)
 #do 30 independent runs (5 dimensions)
 
 
-for bo_choice in ["BO"]: #, "AnnealingBO", "PCABO"
-    for model_choice in ["s0", "GP", "RF"]:
-        for aq_choice in ["MGFI", "UCB", "EI", "PI", "EpsilonPI"]:
-            for opt_choice in ["MIES",  "BFGS", "OnePlusOne_Cholesky_CMA"]:                
+for bo_choice in ["PCABO"]: #"BO", "AnnealingBO", "PCABO"
+    for model_choice in ["s0", "GP", "RF"]:#
+        for aq_choice in ["MGFI", "UCB", "EI", "EpsilonPI"]:
+            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA", "OnePlusOne_CMA"]:                
                 samples = []
                 print(f"Evaluating {bo_choice} with {model_choice} and {aq_choice} and {opt_choice}")
                 for i in tqdm(np.arange(num_samples)):
                     np.random.seed(i)
                     doe_size = 100
+                    max_FEs = 1000
                     if model_choice == "GP":
                         model = GaussianProcess(                # create the GPR model
                             thetaL=thetaL, thetaU=thetaU
                         )
                     elif model_choice == "RF":
-                        model = RandomForest()
+                        model = RandomForest(levels=space.levels)
                     else:
                         model = s0()
                         doe_size = 1
+                        max_FEs = 10
 
                     if bo_choice == "BO":
                         opt = BO(
@@ -47,7 +49,7 @@ for bo_choice in ["BO"]: #, "AnnealingBO", "PCABO"
                             max_FEs=doe_size+1,                         # maximal function evaluation
                             verbose=False,
                             acquisition_fun=aq_choice,
-                            acquisition_optimization={"optimizer": opt_choice}
+                            acquisition_optimization={"optimizer": opt_choice, 'max_FEs': max_FEs}
                         )
                     elif bo_choice == "PCABO":
                         opt = PCABO(
@@ -57,8 +59,9 @@ for bo_choice in ["BO"]: #, "AnnealingBO", "PCABO"
                             DoE_size=doe_size,                         # number of initial sample points
                             max_FEs=doe_size+1,                         # maximal function evaluation
                             verbose=False,
+                            n_components=0.95,
                             acquisition_fun=aq_choice,
-                            acquisition_optimization={"optimizer": opt_choice}
+                            acquisition_optimization={"optimizer": opt_choice, 'max_FEs': max_FEs}
                         )
                     xopt, fopt, stop_dict = opt.run()
                     samples.append(xopt)
