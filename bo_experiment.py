@@ -20,9 +20,9 @@ thetaU = 10 * (1 - 0) * np.ones(dim)
 
 
 for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
-    for model_choice in ["GP", "RF"]:#
+    for model_choice in ["s0", "GP", "RF"]:#
         for aq_choice in ["MGFI", "UCB", "EI", "EpsilonPI"]:
-            for opt_choice in ["BFGS"]:           #"MIES", "OnePlusOne_Cholesky_CMA",       
+            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA"]:           #      "BFGS" only with GP
                 samples = []
                 print(f"Evaluating {bo_choice} with {model_choice} and {aq_choice} and {opt_choice}")
                 for i in tqdm(np.arange(num_samples)):
