@@ -6,7 +6,6 @@ import numpy as np
 
 from .acquisition.acquisition_fun import EI, MGFI, PI, UCB
 from .bayes_opt import BO, AnnealingBO, NoisyBO, ParallelBO
-from .mobo import MOBO
 from .search_space import (
     Bool,
     BoolSpace,
@@ -27,7 +26,6 @@ __all__: List[str] = [
     "ParallelBO",
     "NoisyBO",
     "AnnealingBO",
-    "MOBO",
     "Solution",
     "RandomForest",
     "GaussianProcess",
