@@ -47,7 +47,7 @@ for facade in [SMAC4HPO, SMAC4BB]:
         )
         smac = facade(
             scenario=scenario,
-            rng=np.random.RandomState(42),
+            rng=np.random.RandomState(i),
             tae_runner=model.train,
         )
         incumbent = smac.optimize()
