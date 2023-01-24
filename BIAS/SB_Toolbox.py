@@ -439,7 +439,7 @@ class BIAS:
             # perform per dimension test
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
-            preds.append(self.deepmodel.predict(x,batch_size=1))
+            preds.append(self.deepmodel.predict(x))
         
         decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
         
