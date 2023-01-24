@@ -31,7 +31,7 @@ for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
                     np.random.seed(i)
                     doe_size = 100
                     max_FEs = 1000
-                    update_size = 100
+                    update_size = 20
                     if model_choice == "GP":
                         model = GaussianProcess(                # create the GPR model
                             thetaL=thetaL, thetaU=thetaU
