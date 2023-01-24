@@ -1,12 +1,23 @@
 
 from scipy.optimize import differential_evolution
 import numpy as np
-from BIAS import BIAS, f0
 from tqdm import tqdm
 from bayes_opt.bayes_optim import BO, RealSpace, AnnealingBO
 from bayes_opt.bayes_optim.extension import PCABO
 from bayes_opt.bayes_optim.surrogate import GaussianProcess, RandomForest, s0
 from mpi4py import MPI
+
+
+def f0(x):
+    """f0 random function, to be used a objective function to test optimization algorithms.
+
+    Args:
+        x (list): input for the objective function, ignored since the function is random.
+
+    Returns:
+        float: A uniform random number
+    """
+    return np.random.uniform()
 
 
 dim = 30
