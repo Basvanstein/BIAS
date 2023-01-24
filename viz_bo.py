@@ -1,5 +1,8 @@
 import numpy as np
 from BIAS import BIAS, f0, install_r_packages
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
     for model_choice in ["s0", "GP", "RF"]:#
