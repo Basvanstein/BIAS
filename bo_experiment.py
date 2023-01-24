@@ -20,15 +20,18 @@ thetaU = 10 * (1 - 0) * np.ones(dim)
 
 
 for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
-    for model_choice in ["s0", "GP", "RF"]:#
+    for model_choice in ["GP", "RF"]:#
         for aq_choice in ["MGFI", "UCB", "EI", "EpsilonPI"]:
-            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA"]:           #      "BFGS" only with GP
+            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA", "BFGS"]:
+                if opt_choice == "BFGS" and model_choice == "RF":
+                    continue  # "BFGS" only with GP
                 samples = []
                 print(f"Evaluating {bo_choice} with {model_choice} and {aq_choice} and {opt_choice}")
                 for i in tqdm(np.arange(num_samples)):
                     np.random.seed(i)
                     doe_size = 100
                     max_FEs = 1000
+                    update_size = 100
                     if model_choice == "GP":
                         model = GaussianProcess(                # create the GPR model
                             thetaL=thetaL, thetaU=thetaU
@@ -46,20 +49,8 @@ for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
                             obj_fun=f0,
                             model=model,
                             DoE_size=doe_size,                         # number of initial sample points
-                            max_FEs=doe_size+1,                         # maximal function evaluation
+                            max_FEs=doe_size+update_size,                         # maximal function evaluation
                             verbose=False,
-                            acquisition_fun=aq_choice,
-                            acquisition_optimization={"optimizer": opt_choice, 'max_FEs': max_FEs}
-                        )
-                    elif bo_choice == "PCABO":
-                        opt = PCABO(
-                            search_space=space,
-                            obj_fun=f0,
-                            model=model,
-                            DoE_size=doe_size,                         # number of initial sample points
-                            max_FEs=doe_size+1,                         # maximal function evaluation
-                            verbose=False,
-                            n_components=0.95,
                             acquisition_fun=aq_choice,
                             acquisition_optimization={"optimizer": opt_choice, 'max_FEs': max_FEs}
                         )
