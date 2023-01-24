@@ -2,8 +2,8 @@
 from scipy.optimize import differential_evolution
 import numpy as np
 from tqdm import tqdm
-from bayes_opt.bayes_optim import BO, RealSpace
-from bayes_opt.bayes_optim.surrogate import GaussianProcess, RandomForest, s0
+from bayes_optim import BO, RealSpace
+from bayes_optim.surrogate import GaussianProcess, RandomForest, s0
 from mpi4py import MPI
 
 
@@ -37,12 +37,12 @@ configurations = []
 for bo_choice in ["BO"]: #"BO", "AnnealingBO", "PCABO"
     for model_choice in ["GP", "RF"]:#
         for aq_choice in ["MGFI", "UCB", "EI", "EpsilonPI"]:
-            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA", "BFGS"]:
+            for opt_choice in ["MIES", "OnePlusOne_Cholesky_CMA"]:
                 if opt_choice == "BFGS" and model_choice == "RF":
                     continue  # "BFGS" only with GP
                 configurations.append((bo_choice, model_choice, aq_choice, opt_choice))
 
-#print(len(configurations))
+print(len(configurations))
 #exit()
 
 bo_choice, model_choice, aq_choice, opt_choice = configurations[rank]
