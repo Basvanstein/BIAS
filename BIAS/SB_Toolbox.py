@@ -293,7 +293,7 @@ class BIAS:
         plt.tight_layout()
         if filename is not None:
             plt.savefig(filename)
-        plt.show()
+        #plt.show()
 
     def predict_type(self, dt_rej, print_type=False):
         """Predict the type of bias using the rejection data.
@@ -439,7 +439,7 @@ class BIAS:
             # perform per dimension test
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
-            preds.append(self.deepmodel.predict(x))
+            preds.append(self.deepmodel.predict(x,batch_size=1))
         
         decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
         
