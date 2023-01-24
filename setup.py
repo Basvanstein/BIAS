@@ -11,7 +11,7 @@ if gh_ref:
     __version__ = tag.replace("v", "")
 
 setuptools.setup(
-    name='BIAS',
+    name='struct-bias',
     version=__version__,
     author="Diederick Vermetten",
     author_email="d.l.vermetten@liacs.leidenuniv.nl",
@@ -19,18 +19,18 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     install_requires=[
         'numpy',
+        'tensorflow',
+        'shap',
         'rpy2',
         'scipy',
         'pandas',
-        'functools',
         'sklearn',
-        'multiprocessing',
         'matplotlib',
         'seaborn',
-        'statsmodels',
-        'pickle'
+        'statsmodels'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -46,6 +46,9 @@ samples = np.array(samples)
 
 test = BIAS()
 print(test.predict(samples, show_figure=True))
+
+y, preds = test.predict_deep(samples)
+test.explain(samples, preds, filename="explanation.png")
 ```
 
 ## Additional files
