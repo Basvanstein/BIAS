@@ -5,3 +5,6 @@ BIAS/models/RF
 *.pkl
 __pycache__
 misclasifications
+build/
+dist/
+struct_bias.egg-info/
