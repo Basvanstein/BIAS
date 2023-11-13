@@ -441,7 +441,7 @@ class BIAS:
             x = np.expand_dims([x], axis=2)
             preds.append(self.deepmodel.predict(x))
         
-        decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
+        decisions = np.argmax(np.array(preds).reshape(-1, data.shape[1]), axis=1) > 0
         
         if np.mean(decisions) <= 0.1:
             y = 'unif'
